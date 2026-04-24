@@ -50,15 +50,15 @@ MENU = {
         {"id": "fc-2pc", "name": "2 Piece Fried Chicken", "price": 160, "desc": "Two pieces of golden, juicy hand-breaded fried chicken.", "image": "https://bataatas.in/images/2pcs.jpeg"},
         {"id": "fc-5pc", "name": "5 Piece Fried Chicken", "price": 270, "desc": "Five pieces of golden, crunchy fried chicken to share.", "image": "https://bataatas.in/images/5pcs fried chckn.jpeg"},
         {"id": "fc-10pc", "name": "10 Piece Fried Chicken", "price": 520, "desc": "A full bucket of crispy golden fried chicken.", "image": "https://bataatas.in/images/10ocs.jpeg"},
-        {"id": "fc-20pc", "name": "20 Piece Fried Chicken", "price": 1020, "desc": "The ultimate feast — twenty pieces for the whole squad.", "image": "https://bataatas.in/images/20-piece fried chicken.jpg"},
+        {"id": "fc-20pc", "name": "20 Piece Fried Chicken", "price": 1020, "desc": "The ultimate feast — twenty pieces for the whole squad.", "image": "https://bataatas.in/images/20 piece fried chicken.jpg"},
     ],
     "Chicken Strips": [
-        {"id": "cs-4pc", "name": "4 Piece Chicken Strips", "price": 160, "desc": "Tender, crispy chicken strips with dipping sauce.", "image": "https://bataatas.in/images/4pcs-strips.jpeg"},
+        {"id": "cs-4pc", "name": "4 Piece Chicken Strips", "price": 160, "desc": "Tender, crispy chicken strips with dipping sauce.", "image": "https://bataatas.in/images/4pcs strips.jpeg"},
         {"id": "cs-8pc", "name": "8 Piece Chicken Strips", "price": 300, "desc": "Eight golden strips — crispy on the outside, juicy inside.", "image": "https://bataatas.in/images/8ps chick strips.jpeg"},
     ],
     "Burgers": [
         {"id": "zinger", "name": "Zinger Burger", "price": 150, "desc": "Crispy spiced chicken fillet with fresh lettuce and creamy mayo.", "image": "https://bataatas.in/images/zinger burger.jpg"},
-        {"id": "beef-smash", "name": "Beef Smash Burger", "price": 170, "desc": "Smashed beef patty, melted cheese and our signature sauce.", "image": "https://bataatas.in/images/beef smash-burger.jpg"},
+        {"id": "beef-smash", "name": "Beef Smash Burger", "price": 170, "desc": "Smashed beef patty, melted cheese and our signature sauce.", "image": "https://bataatas.in/images/beef smash burger.jpg"},
     ],
     "Drinks": [
         {"id": "lime-juice", "name": "Lime Juice", "price": 25, "desc": "Freshly squeezed lime juice — zesty and refreshing.", "image": "https://bataatas.in/images/lime juice.jpg"},
@@ -68,12 +68,12 @@ MENU = {
         {"id": "chikku-juice", "name": "Chikku Juice", "price": 70, "desc": "Creamy sapodilla shake — a tropical classic.", "image": "https://bataatas.in/images/chikku juice.jpg"},
         {"id": "passion-mojito", "name": "Passion Fruit Mojito", "price": 90, "desc": "Passion fruit, mint, lime — the ultimate refresher.", "image": "https://bataatas.in/images/passion fruit mojito.jpg"},
         {"id": "mint-mojito", "name": "Mint Lime Mojito", "price": 90, "desc": "Classic minty-lime mojito — cool, crisp, iconic.", "image": "https://bataatas.in/images/mint lime.jpg"},
-        {"id": "blue-mojito", "name": "Blue Curaçao Mojito", "price": 90, "desc": "Tropical blue curaçao swirled with mint and lime.", "image": "https://bataatas.in/images/blue mojito.jpg"},
+        {"id": "blue-mojito", "name": "Blue Curaçao Mojito", "price": 90, "desc": "Tropical blue curaçao swirled with mint and lime.", "image": "https://bataatas.in/images/blue mojito new.png"},
         {"id": "cold-coffee", "name": "Cold Coffee", "price": 90, "desc": "Rich, creamy and ice-cold — the perfect pick-me-up.", "image": "https://bataatas.in/images/cold coffee.jpg"},
     ],
     "Soft Drinks": [
         {"id": "pepsi", "name": "Pepsi", "price": 20, "desc": "Chilled Pepsi — the classic fizz.", "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=900&q=80"},
-        {"id": "7up", "name": "7UP", "price": 20, "desc": "Crisp, lemony 7UP — ice cold.", "image": "https://bataatas.in/images/7-up.jpg"},
+        {"id": "7up", "name": "7UP", "price": 20, "desc": "Crisp, lemony 7UP — ice cold.", "image": "https://bataatas.in/images/7 up.jpg"},
     ],
     "Add-ons": [
         {"id": "peri-seasoning", "name": "Peri Peri Seasoning", "price": 10, "desc": "Extra peri peri punch for your fries.", "image": "https://bataatas.in/images/peri peri seasoning.jpg"},
