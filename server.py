@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Literal
 import uuid
 from datetime import datetime, timezone
+import httpx
 
 
 ROOT_DIR = Path(__file__).parent
@@ -22,6 +23,23 @@ db = client[os.environ['DB_NAME']]
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
 RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'batatas2025')
+
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '')
+
+async def send_telegram(message: str):
+    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+        return
+    try:
+        url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        async with httpx.AsyncClient() as client:
+            await client.post(url, json={
+                "chat_id": TELEGRAM_CHAT_ID,
+                "text": message,
+                "parse_mode": "HTML"
+            })
+    except Exception as e:
+        logger.error(f"Telegram error: {e}")
 
 razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
@@ -248,6 +266,27 @@ async def create_order(payload: OrderCreate):
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.orders.insert_one(doc.copy())
+
+    await db.orders.insert_one(doc.copy())
+
+    # Send Telegram notification
+    items_text = "\n".join([f"  • {i['name']} x{i['qty']} = ₹{i['line_total']}" for i in resolved])
+    tg_message = (
+        f"🔔 <b>New Order #{short_id}</b>\n\n"
+        f"👤 {payload.customer_name} · {payload.customer_phone}\n"
+        f"🏪 Branch: {payload.branch.title()}\n"
+        f"🛵 Type: {payload.order_type.title()}\n"
+        f"💳 Payment: {effectivePayment.upper()}\n\n"
+        f"🛒 Items:\n{items_text}\n\n"
+        f"💰 Total: ₹{total_rupees}"
+    )
+    if payload.customer_address:
+        tg_message += f"\n📍 Address: {payload.customer_address}"
+    if payload.notes:
+        tg_message += f"\n📝 Notes: {payload.notes}"
+    await send_telegram(tg_message)
+
+    
 
     return OrderResponse(
         id=order_id,
