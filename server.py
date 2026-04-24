@@ -4,6 +4,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
+import razorpay
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Literal
@@ -18,8 +19,11 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-RAZORPAY_PAYMENT_LINK = os.environ.get('RAZORPAY_PAYMENT_LINK', 'https://razorpay.me/@inthishamusman')
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'batatas2025')
+
+razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
 app = FastAPI(title="Batatas API")
 api_router = APIRouter(prefix="/api")
@@ -28,52 +32,52 @@ api_router = APIRouter(prefix="/api")
 # ===== STATIC DATA =====
 MENU = {
     "Signature": [
-        {"id": "chicken-loaded", "name": "Chicken Loaded Fries", "price": 180, "desc": "Crispy fries smothered with spicy chicken, cheese and sauces.", "image": "https://bataatas.in/images/chicken loaded fries.jpg"},
-        {"id": "sausage-loaded", "name": "Sausage Loaded Fries", "price": 200, "desc": "Loaded with juicy sausages, cheese, and smoky sauces.", "image": "https://bataatas.in/images/sausage loaded fries.jpeg"},
+        {"id": "chicken-loaded", "name": "Chicken Loaded Fries", "price": 180, "desc": "Crispy fries smothered with spicy chicken, cheese and sauces.", "image": "https://bataatas.in/images/chicken-loaded-fries.jpg"},
+        {"id": "sausage-loaded", "name": "Sausage Loaded Fries", "price": 200, "desc": "Loaded with juicy sausages, cheese, and smoky sauces.", "image": "https://bataatas.in/images/sausage-loaded-fries.jpeg"},
         {"id": "machos", "name": "Machos", "price": 210, "desc": "Nacho-style loaded fries — cheesy, crunchy, irresistible.", "image": "https://bataatas.in/images/machos.jpeg"},
-        {"id": "beef-smash-loaded", "name": "Smash Beef Loaded Fries", "price": 230, "desc": "Smashed beef, melted cheese and signature sauce over fries.", "image": "https://bataatas.in/images/beef loaded fries.jpeg"},
+        {"id": "beef-smash-loaded", "name": "Smash Beef Loaded Fries", "price": 230, "desc": "Smashed beef, melted cheese and signature sauce over fries.", "image": "https://bataatas.in/images/beef-loaded-fries.jpeg"},
     ],
     "Snacks": [
-        {"id": "exotic-fries", "name": "Exotic French Fries", "price": 80, "desc": "Golden, crispy fries served with your favorite dipping sauce.", "image": "https://bataatas.in/images/exotic french.jpeg"},
-        {"id": "cheesy-fries", "name": "Cheesy French Fries", "price": 135, "desc": "Crispy fries loaded with molten cheese and dipping sauce.", "image": "https://bataatas.in/images/cheesy fries.jpeg"},
-        {"id": "peri-fries", "name": "Peri Peri French Fries", "price": 90, "desc": "Golden fries tossed in fiery peri peri seasoning.", "image": "https://bataatas.in/images/peri peri fries.jpg"},
+        {"id": "exotic-fries", "name": "Exotic French Fries", "price": 80, "desc": "Golden, crispy fries served with your favorite dipping sauce.", "image": "https://bataatas.in/images/exotic-french.jpeg"},
+        {"id": "cheesy-fries", "name": "Cheesy French Fries", "price": 135, "desc": "Crispy fries loaded with molten cheese and dipping sauce.", "image": "https://bataatas.in/images/cheesy-fries.jpeg"},
+        {"id": "peri-fries", "name": "Peri Peri French Fries", "price": 90, "desc": "Golden fries tossed in fiery peri peri seasoning.", "image": "https://bataatas.in/images/peri-peri-fries.jpg"},
     ],
     "Bites": [
         {"id": "nugget-bites", "name": "Nugget Bites", "price": 130, "desc": "Crispy chicken nuggets tossed in signature peri peri seasoning.", "image": "https://bataatas.in/images/nuggets.jpeg"},
-        {"id": "peri-wings", "name": "Peri Wings", "price": 150, "desc": "Spicy peri peri wings — a fiery combo you can't resist.", "image": "https://bataatas.in/images/8pcs wings.jpeg"},
+        {"id": "peri-wings", "name": "Peri Wings", "price": 150, "desc": "Spicy peri peri wings — a fiery combo you can't resist.", "image": "https://bataatas.in/images/8pcs-wings.jpeg"},
     ],
     "Fried Chicken": [
         {"id": "fc-2pc", "name": "2 Piece Fried Chicken", "price": 160, "desc": "Two pieces of golden, juicy hand-breaded fried chicken.", "image": "https://bataatas.in/images/2pcs.jpeg"},
-        {"id": "fc-5pc", "name": "5 Piece Fried Chicken", "price": 270, "desc": "Five pieces of golden, crunchy fried chicken to share.", "image": "https://bataatas.in/images/5pcs fried chckn.jpeg"},
+        {"id": "fc-5pc", "name": "5 Piece Fried Chicken", "price": 270, "desc": "Five pieces of golden, crunchy fried chicken to share.", "image": "https://bataatas.in/images/5pcs-fried-chckn.jpeg"},
         {"id": "fc-10pc", "name": "10 Piece Fried Chicken", "price": 520, "desc": "A full bucket of crispy golden fried chicken.", "image": "https://bataatas.in/images/10ocs.jpeg"},
-        {"id": "fc-20pc", "name": "20 Piece Fried Chicken", "price": 1020, "desc": "The ultimate feast — twenty pieces for the whole squad.", "image": "https://bataatas.in/images/20 piece fried chicken.jpg"},
+        {"id": "fc-20pc", "name": "20 Piece Fried Chicken", "price": 1020, "desc": "The ultimate feast — twenty pieces for the whole squad.", "image": "https://bataatas.in/images/20-piece-fried-chicken.jpg"},
     ],
     "Chicken Strips": [
-        {"id": "cs-4pc", "name": "4 Piece Chicken Strips", "price": 160, "desc": "Tender, crispy chicken strips with dipping sauce.", "image": "https://bataatas.in/images/4pcs strips.jpeg"},
-        {"id": "cs-8pc", "name": "8 Piece Chicken Strips", "price": 300, "desc": "Eight golden strips — crispy on the outside, juicy inside.", "image": "https://bataatas.in/images/8ps chick strips.jpeg"},
+        {"id": "cs-4pc", "name": "4 Piece Chicken Strips", "price": 160, "desc": "Tender, crispy chicken strips with dipping sauce.", "image": "https://bataatas.in/images/4pcs-strips.jpeg"},
+        {"id": "cs-8pc", "name": "8 Piece Chicken Strips", "price": 300, "desc": "Eight golden strips — crispy on the outside, juicy inside.", "image": "https://bataatas.in/images/8ps-chick-strips.jpeg"},
     ],
     "Burgers": [
-        {"id": "zinger", "name": "Zinger Burger", "price": 150, "desc": "Crispy spiced chicken fillet with fresh lettuce and creamy mayo.", "image": "https://bataatas.in/images/zinger burger.jpg"},
-        {"id": "beef-smash", "name": "Beef Smash Burger", "price": 170, "desc": "Smashed beef patty, melted cheese and our signature sauce.", "image": "https://bataatas.in/images/beef smash burger.jpg"},
+        {"id": "zinger", "name": "Zinger Burger", "price": 150, "desc": "Crispy spiced chicken fillet with fresh lettuce and creamy mayo.", "image": "https://bataatas.in/images/zinger-burger.jpg"},
+        {"id": "beef-smash", "name": "Beef Smash Burger", "price": 170, "desc": "Smashed beef patty, melted cheese and our signature sauce.", "image": "https://bataatas.in/images/beef-smash-burger.jpg"},
     ],
     "Drinks": [
-        {"id": "lime-juice", "name": "Lime Juice", "price": 25, "desc": "Freshly squeezed lime juice — zesty and refreshing.", "image": "https://bataatas.in/images/lime juice.jpg"},
-        {"id": "mint-lime", "name": "Mint Lime Juice", "price": 30, "desc": "Cool mint meets zesty lime.", "image": "https://bataatas.in/images/mint lime.jpg"},
-        {"id": "mango-juice", "name": "Mango Juice", "price": 70, "desc": "Thick, sweet, sun-ripened mango.", "image": "https://bataatas.in/images/mango juice.jpg"},
-        {"id": "strawberry-juice", "name": "Strawberry Juice", "price": 70, "desc": "Fresh strawberries blended smooth.", "image": "https://bataatas.in/images/strawberry juice.jpg"},
-        {"id": "chikku-juice", "name": "Chikku Juice", "price": 70, "desc": "Creamy sapodilla shake — a tropical classic.", "image": "https://bataatas.in/images/chikku juice.jpg"},
-        {"id": "passion-mojito", "name": "Passion Fruit Mojito", "price": 90, "desc": "Passion fruit, mint, lime — the ultimate refresher.", "image": "https://bataatas.in/images/passion fruit mojito.jpg"},
-        {"id": "mint-mojito", "name": "Mint Lime Mojito", "price": 90, "desc": "Classic minty-lime mojito — cool, crisp, iconic.", "image": "https://bataatas.in/images/mint lime.jpg"},
-        {"id": "blue-mojito", "name": "Blue Curaçao Mojito", "price": 90, "desc": "Tropical blue curaçao swirled with mint and lime.", "image": "https://bataatas.in/images/blue mojito.jpg"},
-        {"id": "cold-coffee", "name": "Cold Coffee", "price": 90, "desc": "Rich, creamy and ice-cold — the perfect pick-me-up.", "image": "https://bataatas.in/images/cold coffee.jpg"},
+        {"id": "lime-juice", "name": "Lime Juice", "price": 25, "desc": "Freshly squeezed lime juice — zesty and refreshing.", "image": "https://bataatas.in/images/lime-juice.jpg"},
+        {"id": "mint-lime", "name": "Mint Lime Juice", "price": 30, "desc": "Cool mint meets zesty lime.", "image": "https://bataatas.in/images/mint-lime.jpg"},
+        {"id": "mango-juice", "name": "Mango Juice", "price": 70, "desc": "Thick, sweet, sun-ripened mango.", "image": "https://bataatas.in/images/mango-juice.jpg"},
+        {"id": "strawberry-juice", "name": "Strawberry Juice", "price": 70, "desc": "Fresh strawberries blended smooth.", "image": "https://bataatas.in/images/strawberry-juice.jpg"},
+        {"id": "chikku-juice", "name": "Chikku Juice", "price": 70, "desc": "Creamy sapodilla shake — a tropical classic.", "image": "https://bataatas.in/images/chikku-juice.jpg"},
+        {"id": "passion-mojito", "name": "Passion Fruit Mojito", "price": 90, "desc": "Passion fruit, mint, lime — the ultimate refresher.", "image": "https://bataatas.in/images/passion-fruit-mojito.jpg"},
+        {"id": "mint-mojito", "name": "Mint Lime Mojito", "price": 90, "desc": "Classic minty-lime mojito — cool, crisp, iconic.", "image": "https://bataatas.in/images/mint-lime.jpg"},
+        {"id": "blue-mojito", "name": "Blue Curaçao Mojito", "price": 90, "desc": "Tropical blue curaçao swirled with mint and lime.", "image": "https://bataatas.in/images/blue-mojito.jpg"},
+        {"id": "cold-coffee", "name": "Cold Coffee", "price": 90, "desc": "Rich, creamy and ice-cold — the perfect pick-me-up.", "image": "https://bataatas.in/images/cold-coffee.jpg"},
     ],
     "Soft Drinks": [
         {"id": "pepsi", "name": "Pepsi", "price": 20, "desc": "Chilled Pepsi — the classic fizz.", "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=900&q=80"},
-        {"id": "7up", "name": "7UP", "price": 20, "desc": "Crisp, lemony 7UP — ice cold.", "image": "https://bataatas.in/images/7 up.jpg"},
+        {"id": "7up", "name": "7UP", "price": 20, "desc": "Crisp, lemony 7UP — ice cold.", "image": "https://bataatas.in/images/7-up.jpg"},
     ],
     "Add-ons": [
-        {"id": "peri-seasoning", "name": "Peri Peri Seasoning", "price": 10, "desc": "Extra peri peri punch for your fries.", "image": "https://bataatas.in/images/peri peri seasoning.jpg"},
-        {"id": "cheese-slice", "name": "Cheese Slice", "price": 20, "desc": "Add a layer of melty cheese.", "image": "https://bataatas.in/images/cheese slice.jpg"},
+        {"id": "peri-seasoning", "name": "Peri Peri Seasoning", "price": 10, "desc": "Extra peri peri punch for your fries.", "image": "https://bataatas.in/images/peri-peri-seasoning.jpg"},
+        {"id": "cheese-slice", "name": "Cheese Slice", "price": 20, "desc": "Add a layer of melty cheese.", "image": "https://bataatas.in/images/cheese-slice.jpg"},
         {"id": "extra-wings", "name": "Extra Wings", "price": 35, "desc": "Two extra peri peri wings on the side.", "image": "https://bataatas.in/images/wings.jpeg"},
     ],
 }
@@ -123,6 +127,8 @@ class OrderResponse(BaseModel):
     currency: str
     payment_method: str
     payment_link: Optional[str] = None
+    razorpay_order_id: Optional[str] = None
+    razorpay_key_id: Optional[str] = None
     status: str
     items: list
     order_type: str
@@ -158,7 +164,7 @@ async def root():
 
 @api_router.get("/config")
 async def get_config():
-    return {"payment_link": RAZORPAY_PAYMENT_LINK}
+    return {"razorpay_key_id": RAZORPAY_KEY_ID}
 
 
 @api_router.get("/menu")
@@ -204,7 +210,23 @@ async def create_order(payload: OrderCreate):
     order_id = str(uuid.uuid4())
     short_id = order_id.split("-")[0].upper()
     total_paise = total_rupees * 100
-    payment_link = f"{RAZORPAY_PAYMENT_LINK}?amount={total_paise}" if payload.payment_method == "online" else None
+
+    razorpay_order_id = None
+    if payload.payment_method == "online":
+        try:
+            rz_order = razorpay_client.order.create({
+                "amount": total_paise,
+                "currency": "INR",
+                "receipt": short_id,
+                "notes": {
+                    "order_id": order_id,
+                    "customer_name": payload.customer_name,
+                    "branch": payload.branch,
+                }
+            })
+            razorpay_order_id = rz_order["id"]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Payment gateway error: {str(e)}")
 
     doc = {
         "id": order_id,
@@ -220,7 +242,8 @@ async def create_order(payload: OrderCreate):
         "amount": total_rupees,
         "amount_paise": total_paise,
         "currency": "INR",
-        "payment_link": payment_link,
+        "razorpay_order_id": razorpay_order_id,
+        "payment_link": None,
         "status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -233,7 +256,9 @@ async def create_order(payload: OrderCreate):
         amount=total_rupees,
         currency="INR",
         payment_method=payload.payment_method,
-        payment_link=payment_link,
+        payment_link=None,
+        razorpay_order_id=razorpay_order_id,
+        razorpay_key_id=RAZORPAY_KEY_ID if payload.payment_method == "online" else None,
         status="pending",
         items=resolved,
         order_type=payload.order_type,
@@ -268,7 +293,7 @@ async def create_enquiry(payload: FranchiseEnquiry):
 async def admin_login(payload: AdminLogin):
     if payload.password != ADMIN_PASSWORD:
         raise HTTPException(status_code=401, detail="Incorrect password")
-    return {"ok": True, "token": ADMIN_PASSWORD}  # simple token = password
+    return {"ok": True, "token": ADMIN_PASSWORD}
 
 
 @api_router.get("/admin/orders")
