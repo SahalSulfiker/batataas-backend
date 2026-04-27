@@ -12,6 +12,9 @@ import uuid
 from datetime import datetime, timezone
 import httpx
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -267,7 +270,6 @@ async def create_order(payload: OrderCreate):
     }
     await db.orders.insert_one(doc.copy())
 
-    await db.orders.insert_one(doc.copy())
 
     # Send Telegram notification
     items_text = "\n".join([f"  • {i['name']} x{i['qty']} = ₹{i['line_total']}" for i in resolved])
@@ -276,7 +278,7 @@ async def create_order(payload: OrderCreate):
         f"👤 {payload.customer_name} · {payload.customer_phone}\n"
         f"🏪 Branch: {payload.branch.title()}\n"
         f"🛵 Type: {payload.order_type.title()}\n"
-        f"💳 Payment: {effectivePayment.upper()}\n\n"
+        f"💳 Payment: {payload.payment_method.upper()}\n\n"
         f"🛒 Items:\n{items_text}\n\n"
         f"💰 Total: ₹{total_rupees}"
     )
@@ -367,9 +369,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
 
 @app.on_event("shutdown")
