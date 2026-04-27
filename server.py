@@ -122,7 +122,7 @@ MENU = {
         {"id": "strawberry-juice", "name": "Strawberry Juice", "price": 70, "desc": "Fresh strawberries blended smooth.", "image": "https://bataatas.in/images/strawberry juice.jpg"},
         {"id": "chikku-juice", "name": "Chikku Juice", "price": 70, "desc": "Creamy sapodilla shake — a tropical classic.", "image": "https://bataatas.in/images/chikku juice.jpg"},
         {"id": "passion-mojito", "name": "Passion Fruit Mojito", "price": 90, "desc": "Passion fruit, mint, lime — the ultimate refresher.", "image": "https://bataatas.in/images/passion fruit mojito.jpg"},
-        {"id": "mint-mojito", "name": "Mint Lime Mojito", "price": 90, "desc": "Classic minty-lime mojito — cool, crisp, iconic.", "image": "https://bataatas.in/images/mint lime.jpg"},
+        {"id": "mint-mojito", "name": "Mint Lime Mojito", "price": 90, "desc": "Classic minty-lime mojito — cool, crisp, iconic.", "image": "https://bataatas.in/images/mint mojito.jpg"},
         {"id": "blue-mojito", "name": "Blue Curaçao Mojito", "price": 90, "desc": "Tropical blue curaçao swirled with mint and lime.", "image": "https://bataatas.in/images/blue mojito new.png"},
         {"id": "cold-coffee", "name": "Cold Coffee", "price": 90, "desc": "Rich, creamy and ice-cold — the perfect pick-me-up.", "image": "https://bataatas.in/images/cold coffee.jpg"},
     ],
@@ -300,6 +300,7 @@ async def create_order(payload: OrderCreate):
         "razorpay_order_id": razorpay_order_id,
         "payment_link": None,
         "status": "pending",
+        "payment_status": "pending",
         "created_at": datetime.now(timezone.utc).isoformat(),
     }
     await db.orders.insert_one(doc.copy())
@@ -420,13 +421,18 @@ async def admin_list_orders(_: bool = __import__("fastapi").Depends(require_admi
     return {"orders": await cursor.to_list(length=500)}
 
 
-@api_router.patch("/admin/orders/{order_id}")
-async def admin_update_order(order_id: str, payload: OrderStatusUpdate, _: bool = __import__("fastapi").Depends(require_admin)):
-    res = await db.orders.update_one({"id": order_id}, {"$set": {"status": payload.status, "updated_at": datetime.now(timezone.utc).isoformat()}})
+@api_router.patch("/admin/orders/{order_id}/payment")
+async def admin_mark_payment(order_id: str, _: bool = __import__("fastapi").Depends(require_admin)):
+    res = await db.orders.update_one(
+        {"id": order_id},
+        {"$set": {
+            "payment_status": "received",
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }}
+    )
     if res.matched_count == 0:
         raise HTTPException(status_code=404, detail="Order not found")
-    return {"ok": True, "status": payload.status}
-
+    return {"ok": True, "payment_status": "received"}
 
 @api_router.get("/admin/stats")
 async def admin_stats(_: bool = __import__("fastapi").Depends(require_admin)):
