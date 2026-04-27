@@ -11,6 +11,9 @@ from typing import List, Optional, Literal
 import uuid
 from datetime import datetime, timezone
 import httpx
+import hmac
+import hashlib
+from fastapi import FastAPI, APIRouter, HTTPException, Header, Depends, Request
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -25,6 +28,7 @@ db = client[os.environ['DB_NAME']]
 
 RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')
 RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
+RAZORPAY_WEBHOOK_SECRET = os.environ.get('RAZORPAY_WEBHOOK_SECRET', '')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'batatas2025')
 
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
@@ -316,7 +320,8 @@ async def create_order(payload: OrderCreate):
         tg_message += f"\n📍 Address: {payload.customer_address}"
     if payload.notes:
         tg_message += f"\n📝 Notes: {payload.notes}"
-    await send_telegram(tg_message, branch=payload.branch)
+    if payload.payment_method != "online":
+        await send_telegram(tg_message, branch=payload.branch)
 
     
 
@@ -343,7 +348,49 @@ async def get_order(order_id: str):
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     return order
-
+@api_router.post("/razorpay-webhook")
+async def razorpay_webhook(request: Request):
+    body = await request.body()
+    signature = request.headers.get("x-razorpay-signature", "")
+    
+    expected = hmac.new(
+        RAZORPAY_WEBHOOK_SECRET.encode(),
+        body,
+        hashlib.sha256
+    ).hexdigest()
+    
+    if not hmac.compare_digest(expected, signature):
+        raise HTTPException(status_code=400, detail="Invalid signature")
+    
+    data = await request.json()
+    event = data.get("event")
+    
+    if event == "payment.captured":
+        payment = data["payload"]["payment"]["entity"]
+        razorpay_order_id = payment.get("order_id")
+        
+        if razorpay_order_id:
+            order = await db.orders.find_one({"razorpay_order_id": razorpay_order_id}, {"_id": 0})
+            if order:
+                await db.orders.update_one(
+                    {"razorpay_order_id": razorpay_order_id},
+                    {"$set": {
+                        "payment_status": "received",
+                        "updated_at": datetime.now(timezone.utc).isoformat()
+                    }}
+                )
+                items_text = "\n".join([f"  • {i['name']} x{i['qty']} = ₹{i['line_total']}" for i in order['items']])
+                tg_message = (
+                    f"💰 <b>Payment Received! #{order['short_id']}</b>\n\n"
+                    f"👤 {order['customer_name']} · {order['customer_phone']}\n"
+                    f"🏪 Branch: {order['branch'].title()}\n"
+                    f"✅ Payment: ONLINE · RECEIVED\n\n"
+                    f"🛒 Items:\n{items_text}\n\n"
+                    f"💰 Total: ₹{order['amount']}"
+                )
+                await send_telegram(tg_message, branch=order['branch'])
+    
+    return {"ok": True}
 
 @api_router.post("/franchise-enquiry")
 async def create_enquiry(payload: FranchiseEnquiry):
