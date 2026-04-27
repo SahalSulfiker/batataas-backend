@@ -28,19 +28,49 @@ RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
 ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'batatas2025')
 
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
-TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '')
+TELEGRAM_CHAT_IDS = os.environ.get('TELEGRAM_CHAT_IDS', os.environ.get('TELEGRAM_CHAT_ID', ''))
+TELEGRAM_CHAT_ID_WANDOOR = os.environ.get('TELEGRAM_CHAT_ID_WANDOOR', '')
+TELEGRAM_CHAT_ID_MANJERI = os.environ.get('TELEGRAM_CHAT_ID_MANJERI', '')
+TELEGRAM_CHAT_ID_MAMPAD = os.environ.get('TELEGRAM_CHAT_ID_MAMPAD', '')
 
-async def send_telegram(message: str):
-    if not TELEGRAM_BOT_TOKEN or not TELEGRAM_CHAT_ID:
+BRANCH_CHAT_IDS = {
+    'wandoor': TELEGRAM_CHAT_ID_WANDOOR,
+    'manjeri': TELEGRAM_CHAT_ID_MANJERI,
+    'mampad': TELEGRAM_CHAT_ID_MAMPAD,
+}
+
+async def send_telegram(message: str, branch: str = None):
+    if not TELEGRAM_BOT_TOKEN:
         return
+    
+    # Build list of chat IDs to notify
+    chat_ids = set()
+    
+    # Add main chat IDs (owner gets all notifications)
+    for cid in TELEGRAM_CHAT_IDS.split(','):
+        if cid.strip():
+            chat_ids.add(cid.strip())
+    
+    # Add branch specific chat ID
+    if branch and branch in BRANCH_CHAT_IDS:
+        branch_cid = BRANCH_CHAT_IDS[branch]
+        if branch_cid:
+            chat_ids.add(branch_cid)
+    
+    if not chat_ids:
+        return
+        
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
+        logger.info(f"Sending Telegram to {chat_ids}")
         async with httpx.AsyncClient() as client:
-            await client.post(url, json={
-                "chat_id": TELEGRAM_CHAT_ID,
-                "text": message,
-                "parse_mode": "HTML"
-            })
+            for chat_id in chat_ids:
+                resp = await client.post(url, json={
+                    "chat_id": chat_id,
+                    "text": message,
+                    "parse_mode": "HTML"
+                })
+                logger.info(f"Telegram response: {resp.status_code} {resp.text}")
     except Exception as e:
         logger.error(f"Telegram error: {e}")
 
@@ -286,7 +316,7 @@ async def create_order(payload: OrderCreate):
         tg_message += f"\n📍 Address: {payload.customer_address}"
     if payload.notes:
         tg_message += f"\n📝 Notes: {payload.notes}"
-    await send_telegram(tg_message)
+    await send_telegram(tg_message, branch=payload.branch)
 
     
 
