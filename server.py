@@ -124,7 +124,7 @@ MENU = {
         {"id": "passion-mojito", "name": "Passion Fruit Mojito", "price": 90, "desc": "Passion fruit, mint, lime — the ultimate refresher.", "image": "https://bataatas.in/images/passion fruit mojito.jpg"},
         {"id": "mint-mojito", "name": "Mint Lime Mojito", "price": 90, "desc": "Classic minty-lime mojito — cool, crisp, iconic.", "image": "https://bataatas.in/images/mint mojito.jpg"},
         {"id": "blue-mojito", "name": "Blue Curaçao Mojito", "price": 90, "desc": "Tropical blue curaçao swirled with mint and lime.", "image": "https://bataatas.in/images/blue mojito new.png"},
-        {"id": "cold-coffee", "name": "Cold Coffee", "price": 90, "desc": "Rich, creamy and ice-cold — the perfect pick-me-up.", "image": "https://bataatas.in/images/cold coffee.jpg"},
+        {"id": "cold-coffee", "name": "Cold Coffee", "price": 90, "desc": "Rich, creamy and ice-cold — the perfect pick-me-up.", "image": "https://bataatas.in/images/cold coffee new.jpg"},
     ],
     "Soft Drinks": [
         {"id": "pepsi", "name": "Pepsi", "price": 20, "desc": "Chilled Pepsi — the classic fizz.", "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?auto=format&fit=crop&w=900&q=80"},
@@ -420,6 +420,15 @@ async def admin_list_orders(_: bool = __import__("fastapi").Depends(require_admi
     cursor = db.orders.find({}, {"_id": 0}).sort("created_at", -1).limit(500)
     return {"orders": await cursor.to_list(length=500)}
 
+@api_router.patch("/admin/orders/{order_id}")
+async def admin_update_order(order_id: str, payload: OrderStatusUpdate, _: bool = __import__("fastapi").Depends(require_admin)):
+    res = await db.orders.update_one(
+        {"id": order_id},
+        {"$set": {"status": payload.status, "updated_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    if res.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Order not found")
+    return {"ok": True, "status": payload.status}
 
 @api_router.patch("/admin/orders/{order_id}/payment")
 async def admin_mark_payment(order_id: str, _: bool = __import__("fastapi").Depends(require_admin)):
