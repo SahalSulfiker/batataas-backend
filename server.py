@@ -99,7 +99,7 @@ MENU = {
     ],
     "Bites": [
         {"id": "nugget-bites", "name": "Nugget Bites", "price": 130, "desc": "Crispy chicken nuggets tossed in signature peri peri seasoning.", "image": "https://bataatas.in/images/nuggets.jpeg"},
-        {"id": "peri-wings", "name": "Peri Wings", "price": 150, "desc": "Spicy peri peri wings — a fiery combo you can't resist.", "image": "https://bataatas.in/images/8pcs wings.jpeg"},
+        {"id": "peri-wings", "name": "Peri Wings", "price": 150, "desc": "Spicy peri peri wings — a fiery combo you can't resist.", "image": "https://bataatas.in/images/new peri wings.jpg"},
     ],
     "Fried Chicken": [
         {"id": "fc-2pc", "name": "2 Piece Fried Chicken", "price": 160, "desc": "Two pieces of golden, juicy hand-breaded fried chicken.", "image": "https://bataatas.in/images/2pcs.jpeg"},
@@ -113,16 +113,16 @@ MENU = {
     ],
     "Burgers": [
         {"id": "zinger", "name": "Zinger Burger", "price": 150, "desc": "Crispy spiced chicken fillet with fresh lettuce and creamy mayo.", "image": "https://bataatas.in/images/zinger burger.jpg"},
-        {"id": "beef-smash", "name": "Beef Smash Burger", "price": 170, "desc": "Smashed beef patty, melted cheese and our signature sauce.", "image": "https://bataatas.in/images/beef smash burger.jpg"},
+        {"id": "beef-smash", "name": "Beef Smash Burger", "price": 170, "desc": "Smashed beef patty, melted cheese and our signature sauce.", "image": "https://bataatas.in/images/new beef burger.jpg"},
     ],
     "Drinks": [
         {"id": "lime-juice", "name": "Lime Juice", "price": 25, "desc": "Freshly squeezed lime juice — zesty and refreshing.", "image": "https://bataatas.in/images/lime juice.jpg"},
-        {"id": "mint-lime", "name": "Mint Lime Juice", "price": 30, "desc": "Cool mint meets zesty lime.", "image": "https://bataatas.in/images/mint lime.jpg"},
+        {"id": "mint-lime", "name": "Mint Lime Juice", "price": 30, "desc": "Cool mint meets zesty lime.", "image": "https://bataatas.in/images/new mint lime.jpg"},
         {"id": "mango-juice", "name": "Mango Juice", "price": 70, "desc": "Thick, sweet, sun-ripened mango.", "image": "https://bataatas.in/images/mango juice.jpg"},
-        {"id": "strawberry-juice", "name": "Strawberry Juice", "price": 70, "desc": "Fresh strawberries blended smooth.", "image": "https://bataatas.in/images/strawberry juice.jpg"},
+        {"id": "strawberry-juice", "name": "Strawberry Juice", "price": 70, "desc": "Fresh strawberries blended smooth.", "image": "https://bataatas.in/images/new stawberry.jpg"},
         {"id": "chikku-juice", "name": "Chikku Juice", "price": 70, "desc": "Creamy sapodilla shake — a tropical classic.", "image": "https://bataatas.in/images/chikku juice.jpg"},
         {"id": "passion-mojito", "name": "Passion Fruit Mojito", "price": 90, "desc": "Passion fruit, mint, lime — the ultimate refresher.", "image": "https://bataatas.in/images/passion fruit mojito.jpg"},
-        {"id": "mint-mojito", "name": "Mint Lime Mojito", "price": 90, "desc": "Classic minty-lime mojito — cool, crisp, iconic.", "image": "https://bataatas.in/images/mint mojito.jpg"},
+        {"id": "mint-mojito", "name": "Mint Lime Mojito", "price": 90, "desc": "Classic minty-lime mojito — cool, crisp, iconic.", "image": "https://bataatas.in/images/new mint mojito.jpg"},
         {"id": "blue-mojito", "name": "Blue Curaçao Mojito", "price": 90, "desc": "Tropical blue curaçao swirled with mint and lime.", "image": "https://bataatas.in/images/blue mojito new.png"},
         {"id": "cold-coffee", "name": "Cold Coffee", "price": 90, "desc": "Rich, creamy and ice-cold — the perfect pick-me-up.", "image": "https://bataatas.in/images/cold coffee new.jpg"},
     ],
