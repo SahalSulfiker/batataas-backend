@@ -171,6 +171,7 @@ class OrderCreate(BaseModel):
     customer_phone: str
     customer_address: Optional[str] = ""
     notes: Optional[str] = ""
+    handling_charge: Optional[int] = 0
 
 
 class OrderResponse(BaseModel):
@@ -264,7 +265,8 @@ async def create_order(payload: OrderCreate):
 
     order_id = str(uuid.uuid4())
     short_id = order_id.split("-")[0].upper()
-    total_paise = total_rupees * 100
+    handling = payload.handling_charge or 0
+    total_paise = (total_rupees + handling) * 100
 
     razorpay_order_id = None
     if payload.payment_method == "online":
@@ -294,8 +296,9 @@ async def create_order(payload: OrderCreate):
         "customer_phone": payload.customer_phone,
         "customer_address": payload.customer_address or "",
         "notes": payload.notes or "",
-        "amount": total_rupees,
+        "amount": total_rupees + handling,
         "amount_paise": total_paise,
+        "handling_charge": handling,
         "currency": "INR",
         "razorpay_order_id": razorpay_order_id,
         "payment_link": None,
