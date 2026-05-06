@@ -318,7 +318,7 @@ async def create_order(payload: OrderCreate):
         f"🛵 Type: {payload.order_type.title()}\n"
         f"💳 Payment: {payload.payment_method.upper()}\n\n"
         f"🛒 Items:\n{items_text}\n\n"
-        f"💰 Total: ₹{total_rupees}"
+        f"💰 Subtotal: ₹{total_rupees}" + (f"\n📦 Handling: ₹{handling}" if handling > 0 else "\n📦 Handling: FREE") + f"\n💰 Total: ₹{total_rupees + handling}"
     )
     if payload.customer_address:
         tg_message += f"\n📍 Address: {payload.customer_address}"
