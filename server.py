@@ -140,8 +140,10 @@ BRANCHES = [
     {"id": "wandoor", "name": "Wandoor", "address": "Opp CH Button House, Wandoor", "phone": "+919061160269", "map": "https://www.google.com/maps/search/?api=1&query=Bataatas+Wandoor", "status": "open"},
     {"id": "manjeri", "name": "Manjeri", "address": "KP Tower, Thurakkal Bypass, Manjeri", "phone": "+918111980269", "map": "https://www.google.com/maps/search/?api=1&query=Bataatas+Manjeri", "status": "open"},
     {"id": "mampad", "name": "Mampad", "address": "Mampad, Kerala", "phone": "", "map": "https://maps.app.goo.gl/jUpvhTXLrgJT8Vpq5", "status": "open"},
+    {"id": "thiruvaly", "name": "Thiruvaly", "address": "Thiruvaly, Kerala", "phone": "+916239100700", "map": "https://maps.app.goo.gl/bXyNhJU5SrTCVFNo9", "status": "no_online_orders"},
     {"id": "dubai", "name": "Dubai", "address": "Coming Soon", "phone": "", "map": "", "status": "coming_soon"},
 ]
+
 
 
 def build_menu_lookup():
