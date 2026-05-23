@@ -9,7 +9,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Literal
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import httpx
 import hmac
 import hashlib
@@ -237,6 +237,13 @@ async def get_branches():
 
 @api_router.post("/orders/create", response_model=OrderResponse)
 async def create_order(payload: OrderCreate):
+    # Check store hours (3 PM to 12 AM IST)
+    ist = timezone(timedelta(hours=5, minutes=30))
+    now_ist = datetime.now(ist)
+    current_hour = now_ist.hour
+    if not (15 <= current_hour < 24):
+        raise HTTPException(status_code=400, detail="We are currently closed. Our store is open from 3 PM to 12 AM.")
+
     if not payload.items:
         raise HTTPException(status_code=400, detail="Cart is empty")
     if payload.branch not in OPEN_BRANCH_IDS:
