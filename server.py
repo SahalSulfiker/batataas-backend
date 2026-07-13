@@ -463,6 +463,30 @@ async def admin_stats(_: bool = __import__("fastapi").Depends(require_admin)):
     today = await db.orders.count_documents({"created_at": {"$gte": today_start}})
     return {"total_orders": total, "pending_orders": pending, "today_orders": today}
 
+# ===== SPIN & WIN =====
+class SpinResult(BaseModel):
+    name: str
+    phone: str
+    branch: str
+    prize: str
+
+@api_router.post("/spin/result")
+async def save_spin_result(payload: SpinResult):
+    doc = {
+        "id": str(uuid.uuid4()),
+        "name": payload.name,
+        "phone": payload.phone,
+        "branch": payload.branch,
+        "prize": payload.prize,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+    }
+    await db.spin_results.insert_one(doc.copy())
+    return {"ok": True}
+
+@api_router.get("/admin/spin-results")
+async def admin_spin_results(_: bool = __import__("fastapi").Depends(require_admin)):
+    cursor = db.spin_results.find({}, {"_id": 0}).sort("created_at", -1).limit(500)
+    return {"results": await cursor.to_list(length=500)}
 
 app.include_router(api_router)
 
