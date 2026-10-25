@@ -142,6 +142,7 @@ BRANCHES = [
     {"id": "wandoor", "name": "Wandoor", "address": "Opp CH Button House, Wandoor", "phone": "+919061160269", "map": "https://www.google.com/maps/search/?api=1&query=Bataatas+Wandoor", "status": "open"},
     {"id": "manjeri", "name": "Manjeri", "address": "KP Tower, Thurakkal Bypass, Manjeri", "phone": "+918111980269", "map": "https://www.google.com/maps/search/?api=1&query=Bataatas+Manjeri", "status": "temporarily_closed"},
     {"id": "thiruvaly", "name": "Thiruvaly", "address": "Thiruvaly, Kerala", "phone": "+916239100700", "map": "https://maps.app.goo.gl/bXyNhJU5SrTCVFNo9", "status": "no_online_orders"},
+    {"id": "pulikkalody", "name": "Pulikkalody", "address": "Pulikkalody, Kerala", "phone": "+917025222260", "map": "https://maps.app.goo.gl/WcdC2grWNLksV8Up7", "status": "no_online_orders"},
     {"id": "dubai", "name": "Dubai", "address": "Coming Soon", "phone": "", "map": "", "status": "coming_soon"},
 ]
 
